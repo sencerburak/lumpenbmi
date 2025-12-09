@@ -8,20 +8,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   const comments = {
     underweight: [
-      'Ölecen amına koyduğumun açlıktan, biraz yemek ye lan!',
-      'Kemik üstü deri kalmışsın, iki tost ısmarla kendine yoksa ölecen.'
+      'Acından ölecen amına goduğum, gıt bı zurna dürüm filan bişey ye!',
+      'Kuru götlü seni. Siktir git bi künefe göm.'
     ],
     normal: [
-      'Kötü değilsin ama şımarma lan, formunu koru yoksa şişersin.',
-      'Normal aralıkta. Fena değil, hadi daha iyi olma çabası göster yoksa şişmanlanırsın.'
+      'İyisin iyi maşallah. Her türlü giderin var.',
+      'Fena değilsin. Sen gene de dikkat et şımarma.'
     ],
     overweight: [
-      'Şişmanlanıyorsun amına koyduğumun, az ye biraz yoksa ölecen!',
-      'Kilolu gözüküyorsun, mideni seveceksen az ye de sev yoksa şişersin.'
+      'Götü göbeği salmışsın. Azcık dikkat et.',
+      'Maşallah göbek önde gidiyor.'
     ],
     obese: [
-      'Obeziteye girdin lan, ölecen az ye yoksa amına koyduğumun!',
-      'Ciddi kilo var—şaka yapmıyorum, doktora danış veya az ye yoksa şişersin.'
+      'Ölecen az ye yoksa amına goduum!',
+      'Top gibi olmuşsun. Kalkıyo mu lan hı?'
     ]
   };
 
