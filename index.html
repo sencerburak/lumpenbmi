@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LumpenBMI — Sert ve Samimi VKI Hesaplayıcı</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Lümpen BMI</h1>
+    <p class="tag">Türkçe ve bir tık küfürbaz vücut kitle indeksi hesaplayıcı.</p>
+
+    <form id="bmi-form" class="card" onsubmit="return false;">
+      <div class="section">
+        <label for="weight">Kilo (kg)</label>
+        <input id="weight" type="number" step="0.1" min="10" placeholder="Örn: 72.5">
+      </div>
+
+      <div class="section">
+        <label for="height">Boy (cm)</label>
+        <input id="height" type="number" step="0.1" min="50" placeholder="Örn: 175">
+      </div>
+
+      <div class="actions">
+        <button id="calc-btn" class="btn">Hesapla</button>
+        <button id="reset-btn" type="button" class="btn ghost">Sıfırla</button>
+      </div>
+
+      <div id="result" class="result" aria-live="polite"></div>
+    </form>
+
+    <footer>
+      <small>Uyarı: Bu araç sadece bilgi amaçlıdır. Doktora gitmiyorsan, en azından internete danışma.</small>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
