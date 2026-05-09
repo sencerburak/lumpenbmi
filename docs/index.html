@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LumpenBackpack 3000</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#0b1220}
+    canvas{display:block}
+    #loading{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:#0b1220;z-index:10;font-family:system-ui,sans-serif;
+      color:#9aa4b2;font-size:14px;letter-spacing:.05em;
+    }
+    #loading.hidden{display:none}
+    #info{
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      font-family:system-ui,sans-serif;color:rgba(154,164,178,.55);font-size:12px;
+      letter-spacing:.04em;text-align:center;pointer-events:none;z-index:5;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Loading backpack...</div>
+  <div id="info">Drag to orbit &nbsp;·&nbsp; Scroll to zoom</div>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b1220);
+
+    const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 100);
+    camera.position.set(0, 0.5, 5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.minDistance = 2.5;
+    controls.maxDistance = 12;
+    controls.maxPolarAngle = Math.PI * 0.85;
+    controls.target.set(0, 0.2, 0);
+
+    const bag = new THREE.Group();
+
+    const mat = {
+      shell: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65, metalness: 0.05 }),
+      shellDark: new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7, metalness: 0.05 }),
+      strap: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8, metalness: 0.0 }),
+      accent: new THREE.MeshStandardMaterial({ color: 0x7c3aed, roughness: 0.4, metalness: 0.25 }),
+      metal: new THREE.MeshStandardMaterial({ color: 0xb0b8c8, roughness: 0.15, metalness: 0.92 }),
+      mesh: new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9, metalness: 0.0, side: THREE.DoubleSide }),
+      fleece: new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.95, metalness: 0.0 }),
+    };
+
+    function box(w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      return m;
+    }
+    function cyl(rt, rb, h, seg, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      return m;
+    }
+    function sph(r, ws, hs, mat, x=0, y=0, z=0) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(r, ws, hs), mat);
+      m.position.set(x, y, z);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      return m;
+    }
+
+    bag.add(box(1.6, 2.1, 0.72, mat.shell, 0, 0.05, 0));
+    bag.add(box(1.44, 1.94, 0.06, mat.shellDark, 0, 0.05, 0.36));
+    bag.add(box(1.44, 1.94, 0.06, mat.shellDark, 0, 0.05, -0.36));
+
+    bag.add(box(1.46, 0.55, 0.05, mat.shell, 0, -0.65, 0.34));
+    const frontPanel = box(1.46, 0.55, 0.04, mat.accent, 0, -0.65, 0.36);
+    bag.add(frontPanel);
+
+    bag.add(box(1.44, 0.2, 0.72, mat.shellDark, 0, 1.09, 0));
+    const topPad = box(1.42, 0.18, 0.68, mat.fleece, 0, 1.09, 0);
+    bag.add(topPad);
+
+    const pocket = box(1.2, 0.85, 0.22, mat.shell, 0, -0.58, 0.47));
+    bag.add(pocket);
+    const pocketTop = box(1.2, 0.07, 0.22, mat.accent, 0, -0.14, 0.47));
+    bag.add(pocketTop);
+    bag.add(box(1.22, 0.05, 0.06, mat.metal, 0, -0.14, 0.58));
+
+    const gusset = box(0.04, 0.6, 0.22, mat.shellDark, -0.6, -0.58, 0.47);
+    bag.add(gusset);
+    const gusset2 = box(0.04, 0.6, 0.22, mat.shellDark, 0.6, -0.58, 0.47);
+    bag.add(gusset2);
+
+    for (let s = -1; s <= 1; s += 2) {
+      const clip = box(0.07, 0.16, 0.06, mat.metal, s * 0.4, -0.14, 0.61);
+      bag.add(clip);
+      const clipBar = box(0.04, 0.04, 0.12, mat.metal, s * 0.4, -0.14, 0.61);
+      bag.add(clipBar);
+    }
+
+    for (let s = -1; s <= 1; s += 2) {
+      const adj = s === -1 ? -0.72 : 0.74;
+      bag.add(cyl(0.07, 0.07, 2.3, 12, mat.strap, adj, 0.7, 0, 0, 0, Math.PI/2));
+      bag.add(cyl(0.07, 0.07, 2.3, 12, mat.strap, adj, -0.6, 0, 0, 0, Math.PI/2));
+    }
+
+    const handle = new THREE.Mesh(
+      new THREE.TorusGeometry(0.28, 0.055, 10, 24, Math.PI),
+      mat.strap
+    );
+    handle.position.set(0, 1.25, 0.36);
+    handle.rotation.set(Math.PI/2, 0, 0);
+    handle.castShadow = true;
+    bag.add(handle);
+
+    bag.add(cyl(0.06, 0.06, 0.3, 12, mat.metal, 0, 1.25, 0.08, 0, 0, Math.PI/2));
+    bag.add(cyl(0.06, 0.06, 0.3, 12, mat.metal, 0, 1.25, -0.08, 0, 0, Math.PI/2));
+
+    const meshGeo = new THREE.PlaneGeometry(1.1, 0.4);
+    const meshFront = new THREE.Mesh(meshGeo, mat.mesh);
+    meshFront.position.set(0, 0.7, 0.37);
+    bag.add(meshFront);
+    const meshBack = new THREE.Mesh(meshGeo, mat.mesh);
+    meshBack.position.set(0, 0.7, -0.37);
+    meshBack.rotation.y = Math.PI;
+    bag.add(meshBack);
+
+    for (let s = -1; s <= 1; s += 2) {
+      for (let t = -1; t <= 1; t += 2) {
+        const dRing = box(0.06, 0.08, 0.04, mat.metal, s * 0.75, 1.18, t * 0.26));
+        bag.add(dRing);
+      }
+    }
+
+    scene.add(bag);
+
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({
+      color: 0x0b1220, roughness: 1, metalness: 0
+    }));
+    ground.rotation.x = -Math.PI/2;
+    ground.position.y = -1.12;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const ambient = new THREE.AmbientLight(0x1a2340, 1.8);
+    scene.add(ambient);
+
+    const key = new THREE.DirectionalLight(0xffffff, 3.2);
+    key.position.set(3, 5, 4);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.camera.near = 0.5;
+    key.shadow.camera.far = 20;
+    key.shadow.bias = -0.002;
+    scene.add(key);
+
+    const fill = new THREE.DirectionalLight(0x7c3aed, 0.7);
+    fill.position.set(-4, 2, 2);
+    scene.add(fill);
+
+    const rim = new THREE.DirectionalLight(0x60a5fa, 0.5);
+    rim.position.set(-1, 4, -5);
+    scene.add(rim);
+
+    const groundBounce = new THREE.PointLight(0x7c3aed, 0.35, 8);
+    groundBounce.position.set(0, -0.5, 1);
+    scene.add(groundBounce);
+
+    bag.position.y = -0.1;
+
+    const clock = new THREE.Clock();
+    let targetY = -0.1;
+    let floatT = 0;
+
+    document.getElementById('loading').classList.add('hidden');
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      bag.rotation.y = Math.sin(t * 0.12) * 0.28;
+      bag.position.y = targetY + Math.sin(t * 0.55) * 0.06;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+  </script>
+</body>
+</html>
